@@ -1,23 +1,32 @@
 clear;
 clc;
 addpath("CMTF_Toolbox_v1_1");
+
+% modeling user data
 mainInfo = generate_mainInfo();
-%mainInfo = rate_tensor;
 auxInfo = generate_auxInfo();
 
+% set time period
 time_period = 6;
 T = 5;
+% generate trainset and test set
 [train_set, test_set] = generate_trainAndTest(mainInfo, time_period, T);
 
 % get UPD
 upd = calculate_upd(train_set);
-sf = 1-upd;
+% reconstruct trainset
 sz = size(train_set);
 userNum = sz(1);
 data = train_set;
 for n = 1:userNum
-   train_set(n,:,1:(T-1)) = train_set(n,:,1:(T-1)).*sf(n);
+    for t = 1:(T-1)
+        dec = exp((t-T)*upd(n));
+        train_set(n,:,t) = train_set(n,:,t).*dec;
+    end
 end
+
+% calculate user similarities
+
 
 Z.object{1} = tensor(train_set);
 Z.object{2} = tensor(auxInfo);
@@ -51,6 +60,5 @@ estimate = full(ktensor(fac(1:3))).*Z.miss{1};
 esti_test = double(estimate(:,:,T));
 
 recall = get_recall(esti_test, train_set(:,:,T), 3);
-
 
  

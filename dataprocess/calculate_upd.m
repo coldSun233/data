@@ -21,14 +21,7 @@ function upd = calculate_upd(data)
               %num(3) = num(3)+1;
           else
              common = numel(intersect(prev_interact, cur_interact));
-             upd(n) = 1 - ( common / (numel(prev_interact) + numel(cur_interact) - common) );
-             % if upd(n) >=0.75
-             %     num(4) = num(4)+1;
-             % elseif upd(n) <= 0.5
-             %     num(5) = num(5)+1;
-             % else
-             %     num(6) = num(6)+1;
-             % end   
+             upd(n) = 1 - ( common / (numel(prev_interact) + numel(cur_interact) - common) );  
           end
        end
     end

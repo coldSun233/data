@@ -1,0 +1,71 @@
+%function similarities = calculate_similarities(data)
+    clear;
+    clc;
+    addpath("CMTF_Toolbox_v1_1");
+
+    % modeling user data
+    mainInfo = generate_mainInfo();
+    auxInfo = generate_auxInfo();
+
+    % set time period
+    time_period = 6;
+    T = 5;
+    % generate trainset and test set
+    [train_set, test_set] = generate_trainAndTest(mainInfo, time_period, T);
+
+    % get UPD
+    upd = calculate_upd(train_set);
+    % reconstruct trainset
+    sz = size(train_set);
+    userNum = sz(1);
+    for n = 1:userNum
+        for t = 1:(T-1)
+            dec = exp((t-T)*upd(n));
+            train_set(n,:,t) = train_set(n,:,t).*dec;
+        end
+    end
+    data = train_set;
+    
+    w = 3;
+    sz = size(data);
+    T = size(3);
+    userNum = sz(1);
+    similarities = ones(userNum,userNum,T);
+    for i = 1:userNum
+        for j = 1:userNum
+           if i ~= j
+                for t = 1:T
+                   user_i = data(i,:,t);
+                   user_j = data(j,:,t);
+                   item_i = find(user_i ~= 0);
+                   item_j = find(user_j ~= 0);
+                   same_item = intersect(item_i, item_j);
+                   same_num = numel(same_item);
+                   
+                   if same_num == 0
+                       similarities(i,j,t) = 0;
+                   else
+                       sum1 = 0;
+                       sum2 = 0;
+                       sume3 = 0;
+                       for n = 1:same_num
+                           index = same_item(n);
+                           sum1 = sum1 + data(i,index,t)*data(j,index,t);
+                           sum2 = sum2 + data(i,index,t)*data(i,index,t);
+                           sum3 = sum3 + data(j,index,t)*data(j,index,t);
+                       end
+                       
+                       similarities(i,j,t) = sum1/(sum2^0.5 * sum3^0.5);
+                       if same_num < w
+                           
+                       end
+                   end
+                   
+                   
+                   
+                   
+                end
+           end
+        end
+    end
+%end
